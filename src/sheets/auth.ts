@@ -7,28 +7,9 @@ const SCOPES = ["https://www.googleapis.com/auth/spreadsheets"];
 const TOKEN_PATH = "secret/token.json";
 const CRED_PATH = "secret/credentials.json";
 
-export default async function main() {
+export default async function authenticate() {
   const auth = await authorize(JSON.parse(fs.readFileSync(CRED_PATH, "utf8")));
-  /*const sheets = google.sheets({ version: "v4", auth });
-  const r = await sheets.spreadsheets.values.get({
-    spreadsheetId: "1z0p_MysyAoJIVr7XW_NIWtNJFi0qfT21H4o8etcLZZU",
-    range: "Janvier2021!C4:C12",
-  });
-
-  if (r) {
-    const rows = r.data.values;
-    if (rows) {
-      if (rows.length) {
-        console.log("Name, Major:");
-        // Print columns A and E, which correspond to indices 0 and 4.
-        rows.map((row) => {
-          console.log(`${row[0]}`);
-        });
-      } else {
-        console.log("No data found.");
-      }
-    }
-  }*/
+  return auth;
 }
 
 async function authorize(cred: any) {
@@ -83,5 +64,3 @@ async function readlineAsync(question: string) {
     });
   });
 }
-
-main();

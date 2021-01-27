@@ -1,5 +1,6 @@
 export interface Root {
   logFolder: string;
+  sheetId: string;
 }
 
 export enum BankType {

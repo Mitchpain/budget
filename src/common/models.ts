@@ -1,4 +1,29 @@
-import { Classes } from "../classification/classes";
+enum Classes {
+  "Investissement",
+  "Paye",
+  "Boni",
+  "Energie",
+  "Assurance",
+  "Consommation",
+  "Restaurant",
+  "Épicerie",
+  "Biens",
+  "Auto",
+  "Hypothèque",
+  "Frais Bancaire",
+  "Cadeaux",
+  "Bus",
+  "Croc",
+  "Internet",
+  "Cell",
+  "Divertissement",
+  "Pret etudiant",
+  "Coiffeur",
+  "Taxe",
+  "Entretien",
+  "Distribution",
+  "Santé",
+}
 
 export interface BncInformation {
   Date: string;
@@ -17,7 +42,7 @@ export interface TangerineInformation {
   Montant: string;
 }
 
-export interface BankInformation {
+export interface TransactionInfo {
   Date: CustomDate;
   Montant: number;
   Nom: string;

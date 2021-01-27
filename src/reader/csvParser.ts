@@ -1,10 +1,10 @@
 import { BankType } from "../models";
 import {
-  BankInformation,
+  TransactionInfo,
   BncInformation,
   CustomDate,
   TangerineInformation,
-} from "./models";
+} from "../common/models";
 
 const bncDateToCustomDate = (date: string): CustomDate => {
   const year = `${date[0]}${date[1]}${date[2]}${date[3]}`;
@@ -14,7 +14,7 @@ const bncDateToCustomDate = (date: string): CustomDate => {
 };
 
 const bncToGeneralBank = (bncInfos: BncInformation[]) => {
-  const general: BankInformation[] = [];
+  const general: TransactionInfo[] = [];
   for (const bncInfo of bncInfos) {
     const debit = Number(bncInfo.Debit);
     const credit = Number(bncInfo.Credit);
@@ -47,14 +47,16 @@ const parseTangerineCSV = (
 };
 
 const convertTangerineDate = (date: string): CustomDate => {
-  const Month = date.slice(0, 2);
-  const Day = date.slice(3, 5);
-  const Year = date.slice(6, 10);
+  const datePattern = /(\d{1,2})\/(\d{1,2})\/(\d{4})/;
+  const regDate = datePattern.exec(date);
+  const Month = regDate[1];
+  const Day = regDate[2];
+  const Year = regDate[3];
   return { Day, Month, Year };
 };
 
 const tangerineToGeneralBank = (tangerineInfos: TangerineInformation[]) => {
-  const general: BankInformation[] = [];
+  const general: TransactionInfo[] = [];
   for (const tangerineInfo of tangerineInfos) {
     general.push({
       Nom: tangerineInfo.Nom,
@@ -68,7 +70,7 @@ const tangerineToGeneralBank = (tangerineInfos: TangerineInformation[]) => {
 export const parseCSV = (
   csvStringInfo: string[][],
   bankType: BankType
-): BankInformation[] => {
+): TransactionInfo[] => {
   switch (bankType) {
     case BankType.BNC:
       return bncToGeneralBank(parseBncCSV(csvStringInfo));

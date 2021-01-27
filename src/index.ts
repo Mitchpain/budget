@@ -1,7 +1,8 @@
 import { parseCSV, readCSV, readJsonFile } from "./reader";
 import { logger } from "./logger";
 import { BankType, Root } from "./models";
-import { BankInformation as TransactionInfo } from "./reader/models";
+import { TransactionInfo } from "./common/models";
+import { sheetService } from "./sheets";
 
 const readRoot = async () => {
   try {
@@ -27,9 +28,18 @@ const processCSV = async (bankType: BankType): Promise<TransactionInfo[]> => {
 };
 
 export const execute = async (bankType: BankType) => {
-  const root = await readRoot();
+  const root = (await readRoot()) as Root;
   await initiallizeLogger(root, bankType);
   const allTransactionInfos = await processCSV(bankType);
+  const sheets = sheetService.classifySheets(allTransactionInfos);
+
+  await sheetService.init(root.sheetId);
+
+  for (const sheet in sheets) {
+    console.log(await sheetService.fetchSheetsData(sheet));
+    //console.log(sheet);
+  }
+
   //Filtre la date
   //Pousse le tout sur sheet
 };
