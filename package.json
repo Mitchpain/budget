@@ -1,0 +1,20 @@
+{
+  "name": "budget",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "bnc": "node lib/bnc.js D:\\Code\\budget\\bnc.csv",
+    "tangerine": "node lib/tangerine.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "googleapis": "^67.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^14.14.22"
+  }
+}
