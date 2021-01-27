@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import { logger } from "../logger";
+import { BankType } from "../models";
 
 export const readJsonFile = async (filePath: string) => {
   try {
@@ -14,15 +15,20 @@ const formatData = (data: string) => {
   return data[0] === '"' ? data : `"${data}"`;
 };
 
-export const readCSV = async (filePath: string): Promise<string[][]> => {
-  const allText = await readFile(filePath);
-  console.log("Path", filePath);
+export const readCSV = async (
+  filePath: string,
+  bankType: BankType
+): Promise<string[][]> => {
+  const separator = bankType === BankType.BNC ? ";" : ",";
+  let allText = await readFile(filePath);
+  allText = allText.replace("�", "e");
+  allText = allText.replace("Date de l'operation", "Date");
   var allTextLines = allText.split(/\r\n|\n/);
-  var headers = allTextLines[0].split(";");
+  var headers = allTextLines[0].split(separator);
   var lines = [];
 
   for (var i = 1; i < allTextLines.length; i++) {
-    var data = allTextLines[i].split(";");
+    var data = allTextLines[i].split(separator);
     if (data.length == headers.length) {
       var tarr = [];
       for (var j = 0; j < headers.length; j++) {
