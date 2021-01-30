@@ -31,13 +31,40 @@ export const execute = async (bankType: BankType) => {
   const root = (await readRoot()) as Root;
   await initiallizeLogger(root, bankType);
   const allTransactionInfos = await processCSV(bankType);
-  const sheets = sheetService.classifySheets(allTransactionInfos);
-
+  const sheets = sheetService.classifyTransactionsByDate(allTransactionInfos);
   await sheetService.init(root.sheetId);
 
-  for (const sheet in sheets) {
-    console.log(await sheetService.fetchSheetsData(sheet));
-    //console.log(sheet);
+  for (const sheetName in sheets) {
+    const sheetOnlineDatas = await sheetService.fetchSheetsData(sheetName);
+    const newTransactions = sheets[sheetName] as TransactionInfo[];
+    for (const newTransaction of newTransactions) {
+      const transactionAsSheet = sheetService.transactionToSheet(
+        newTransaction
+      );
+      console.log(transactionAsSheet.Hash);
+      const found = sheetOnlineDatas.filter((value, index, array) => {
+        return value.Hash == transactionAsSheet.Hash;
+      });
+      if (found.length > 0) console.log("found", found);
+    }
+    /* const found = newTransactions.some((transaction) =>
+      sheetOnlineDatas.filter((element, index, array) => {
+        console.log(element.Montant);
+        console.log(transaction.Montant);
+        if (element.Montant / 2 === transaction.Montant) console.log(element);
+      })
+    );
+    console.log(found);*/
+    //  const sheetDatas = await sheetService.fetchSheetsData(sheet);
+    //    console.log(sheetDatas);
+    /*sheetDatas.filter((element,index,array)=>{
+      if(element.Montant)
+    })*/
+    // sheetData.console.log(await sheetService.fetchSheetsData(sheet));
+    //On transform la trasaction en SheetsInformation
+    //on check si notre transaction est la, si est pas la on l'ajoute a un array
+    //note le next ligne de libre
+    //push la data
   }
 
   //Filtre la date

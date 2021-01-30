@@ -13,4 +13,4 @@ export const month = [
   "Decembre",
 ];
 
-export const range = "B4:F";
+export const range = "A4:F";

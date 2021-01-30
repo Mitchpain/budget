@@ -4,9 +4,10 @@ interface SheetService {
 }
 
 interface SheetsInformation {
+  Hash: string;
   Nom: string;
-  Montant: Number;
+  Montant: number;
   Date: string;
-  Details: string;
-  Categorie: string;
+  Details?: string;
+  Categorie?: string;
 }
