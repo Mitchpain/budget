@@ -7,16 +7,18 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
     "bnc": "node lib/bnc.js D:\\Code\\budget\\bnc.csv",
-    "tangerine": "node lib/tangerine.js D:\\Code\\budget\\tangerine.csv"
+    "tangerine": "node lib/tangerine.js D:\\Code\\budget\\tangerine.csv 1 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "googleapis": "^67.0.0",
-    "object-hash": "^2.1.1"
+    "object-hash": "^2.1.1",
+    "prompts": "^2.4.0"
   },
   "devDependencies": {
     "@types/node": "^14.14.22",
-    "@types/object-hash": "^1.3.4"
+    "@types/object-hash": "^1.3.4",
+    "@types/prompts": "^2.0.9"
   }
 }

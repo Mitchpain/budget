@@ -3,6 +3,7 @@ import { logger } from "./logger";
 import { BankType, Root } from "./models";
 import { TransactionInfo } from "./common/models";
 import { sheetService } from "./sheets";
+import { filterWantedTransactions, promptRatio } from "./prompt";
 
 const readRoot = async () => {
   try {
@@ -27,9 +28,21 @@ const processCSV = async (bankType: BankType): Promise<TransactionInfo[]> => {
   return parseCSV(csvString, bankType);
 };
 
+const getDefaultLau = () => {
+  return process.argv[4] ?? "1";
+};
+
+const getDefaultMig = () => {
+  return process.argv[3] ?? "1";
+};
+
 export const execute = async (bankType: BankType) => {
   const root = (await readRoot()) as Root;
   await initiallizeLogger(root, bankType);
+  const ratio =
+    bankType === BankType.TANGERINE
+      ? await promptRatio(getDefaultMig(), getDefaultLau())
+      : undefined;
   const allTransactionInfos = await processCSV(bankType);
   const sheets = sheetService.classifyTransactionsByDate(allTransactionInfos);
   await sheetService.init(root.sheetId);
@@ -39,12 +52,14 @@ export const execute = async (bankType: BankType) => {
     const bankTransactions = sheets[sheetName] as TransactionInfo[];
     const newTrasactions = sheetService.extractNewTransactions(
       bankTransactions,
-      sheetOnlineDatas
+      sheetOnlineDatas,
+      ratio
     );
+    const filteredTransactions = await filterWantedTransactions(newTrasactions);
     //extract wanted / unwanted
     //set category
     await sheetService.publish(
-      newTrasactions,
+      filteredTransactions,
       sheetOnlineDatas.length,
       sheetName
     );

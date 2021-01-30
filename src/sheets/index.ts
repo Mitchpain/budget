@@ -92,11 +92,12 @@ const transactionToSheet = (
 
 const extractNewTransactions = (
   bankTransactions: TransactionInfo[],
-  sheetOnlineDatas: SheetsInformation[]
+  sheetOnlineDatas: SheetsInformation[],
+  ratio?: number
 ) => {
   const newTransactions: SheetsInformation[] = [];
   for (const bankTransaction of bankTransactions) {
-    const transactionAsSheet = transactionToSheet(bankTransaction);
+    const transactionAsSheet = transactionToSheet(bankTransaction, ratio);
     const found = sheetOnlineDatas.filter((value, index, array) => {
       return value.Hash == transactionAsSheet.Hash;
     });
@@ -134,26 +135,6 @@ const publish = async (
       values: values,
     },
   });
-  /*
-
-const resource = {
-  values,
-};
-this.sheetsService.spreadsheets.values.update({
-  spreadsheetId,
-  range,
-  valueInputOption,
-  resource,
-}, (err, result) => {
-  if (err) {
-    // Handle error
-    console.log(err);
-  } else {
-    console.log('%d cells updated.', result.updatedCells);
-  }
-});
-
-  */
 };
 
 export const sheetService = {
