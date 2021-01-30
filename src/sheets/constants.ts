@@ -13,4 +13,13 @@ export const month = [
   "Decembre",
 ];
 
-export const range = "A4:F";
+export const emptyRangeStarting = 4;
+
+export const range = (from?: number) => {
+  const base = from ?? 0;
+  return `A${base + emptyRangeStarting}`;
+};
+
+export const fullRange = (from?: number) => {
+  return `${range(from)}:F`;
+};

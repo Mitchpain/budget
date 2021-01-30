@@ -2,7 +2,7 @@ import { google } from "googleapis";
 import { CustomDate, TransactionInfo } from "../common/models";
 import { logger } from "../logger";
 import authenticate from "./auth";
-import { month, range } from "./constants";
+import { fullRange, month, range } from "./constants";
 import * as hash from "object-hash";
 
 let service: SheetService = { sheetId: undefined, auth: undefined };
@@ -29,12 +29,16 @@ const init = async (spreadsheetId: string) => {
   };
 };
 
-const fetchSheetsData = async (sheetName: string) => {
+const getGoogleSheetsApi = () => {
   const auth = service.auth;
-  const sheets = google.sheets({ version: "v4", auth });
+  return google.sheets({ version: "v4", auth });
+};
+
+const fetchSheetsData = async (sheetName: string) => {
+  const sheets = getGoogleSheetsApi();
   const r = await sheets.spreadsheets.values.get({
     spreadsheetId: service.sheetId,
-    range: `${sheetName}!${range}`,
+    range: `${sheetName}!${fullRange()}`,
   });
 
   const sheetData: SheetsInformation[] = [];
@@ -86,10 +90,77 @@ const transactionToSheet = (
   };
 };
 
+const extractNewTransactions = (
+  bankTransactions: TransactionInfo[],
+  sheetOnlineDatas: SheetsInformation[]
+) => {
+  const newTransactions: SheetsInformation[] = [];
+  for (const bankTransaction of bankTransactions) {
+    const transactionAsSheet = transactionToSheet(bankTransaction);
+    const found = sheetOnlineDatas.filter((value, index, array) => {
+      return value.Hash == transactionAsSheet.Hash;
+    });
+    if (found[0] === undefined) newTransactions.push(transactionAsSheet);
+  }
+  return newTransactions;
+};
+
+const convertMontant = (montant: number) => {
+  return montant.toString().replace(".", ",");
+};
+
+const formatSheetsInformation = (datas: SheetsInformation[]) => {
+  let values = [];
+  for (const data of datas) {
+    values.push([data.Hash, data.Nom, convertMontant(data.Montant), data.Date]);
+  }
+  return values;
+};
+
+const publish = async (
+  datas: SheetsInformation[],
+  previousSize: number,
+  sheetName: string
+) => {
+  const newRange = `${sheetName}!${range(previousSize)}`;
+  const values = formatSheetsInformation(datas);
+  const googleSheetApi = getGoogleSheetsApi();
+  await googleSheetApi.spreadsheets.values.update({
+    spreadsheetId: service.sheetId,
+    range: newRange,
+    valueInputOption: "USER_ENTERED",
+    requestBody: {
+      range: newRange,
+      values: values,
+    },
+  });
+  /*
+
+const resource = {
+  values,
+};
+this.sheetsService.spreadsheets.values.update({
+  spreadsheetId,
+  range,
+  valueInputOption,
+  resource,
+}, (err, result) => {
+  if (err) {
+    // Handle error
+    console.log(err);
+  } else {
+    console.log('%d cells updated.', result.updatedCells);
+  }
+});
+
+  */
+};
+
 export const sheetService = {
   init,
   computeSheetName,
   classifyTransactionsByDate,
   fetchSheetsData,
-  transactionToSheet,
+  extractNewTransactions,
+  publish,
 };
