@@ -1,3 +1,20 @@
-*****Donnee bnc
-Chaque donner, verifier si categoriser dans le fichier de category
-Prompt est-ce la bonne category? Sinon afficher le choix de category et laisser le user selectionner
+Check si ya une category de setter si oui l'indique par default 
+si accepter ou pas de cat, propmter un choix
+
+  const response = await prompts([
+    {
+      type: 'text',
+      name: 'twitter',
+      message: `What's your twitter handle?`
+    },
+    {
+      type: 'multiselect',
+      name: 'color',
+      message: 'Pick colors',
+      choices: [
+        { title: 'Red', value: '#ff0000' },
+        { title: 'Green', value: '#00ff00' },
+        { title: 'Blue', value: '#0000ff' }
+      ],
+    }
+  ])
