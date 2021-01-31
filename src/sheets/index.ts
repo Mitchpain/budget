@@ -2,7 +2,7 @@ import { google } from "googleapis";
 import { CustomDate, TransactionInfo } from "../common/models";
 import { logger } from "../logger";
 import authenticate from "./auth";
-import { fullRange, month, range } from "./constants";
+import { categorySheetName, fullRange, month, range } from "./constants";
 import * as hash from "object-hash";
 
 let service: SheetService = { sheetId: undefined, auth: undefined };
@@ -34,35 +34,40 @@ const getGoogleSheetsApi = () => {
   return google.sheets({ version: "v4", auth });
 };
 
-const fetchSheetsData = async (sheetName: string) => {
+const fetchData = async (sheetName: string, requestedRange: string) => {
   const sheets = getGoogleSheetsApi();
-  const r = await sheets.spreadsheets.values.get({
+  return await sheets.spreadsheets.values.get({
     spreadsheetId: service.sheetId,
-    range: `${sheetName}!${fullRange()}`,
+    range: `${sheetName}!${requestedRange}`,
   });
+};
 
+const extractSheetsInformations = (results) => {
   const sheetData: SheetsInformation[] = [];
-
-  if (r) {
-    const rows = r.data.values;
-    if (rows) {
-      if (rows.length) {
-        rows.map((row) => {
-          sheetData.push({
-            Hash: row[0],
-            Nom: row[1],
-            Montant: Number(row[2].replace(",", ".")),
-            Date: row[3],
-            Details: row[4],
-            Categorie: row[5],
-          });
+  const rows = results.data.values;
+  if (rows) {
+    if (rows.length) {
+      rows.map((row) => {
+        sheetData.push({
+          Hash: row[0],
+          Nom: row[1],
+          Montant: Number(row[2].replace(",", ".")),
+          Date: row[3],
+          Details: row[4],
+          Categorie: row[5],
         });
-      } else {
-        logger.error("No data found.");
-      }
+      });
+    } else {
+      logger.error("No data found.");
     }
   }
   return sheetData;
+};
+
+const fetchSheetsData = async (sheetName: string) => {
+  const results = await fetchData(sheetName, fullRange());
+  if (!!results) return extractSheetsInformations(results);
+  return [];
 };
 
 const formatNumber = (stringNumber: string) => {
@@ -90,6 +95,11 @@ const transactionToSheet = (
   };
 };
 
+const fetchCategories = async () => {
+  //const results = await fetchData(categorySheetName, "A1:B");
+  return [];
+};
+
 const extractNewTransactions = (
   bankTransactions: TransactionInfo[],
   sheetOnlineDatas: SheetsInformation[],
@@ -113,7 +123,14 @@ const convertMontant = (montant: number) => {
 const formatSheetsInformation = (datas: SheetsInformation[]) => {
   let values = [];
   for (const data of datas) {
-    values.push([data.Hash, data.Nom, convertMontant(data.Montant), data.Date]);
+    values.push([
+      data.Hash,
+      data.Nom,
+      convertMontant(data.Montant),
+      data.Date,
+      data.Details ?? "",
+      data.Categorie ?? "",
+    ]);
   }
   return values;
 };
@@ -144,4 +161,5 @@ export const sheetService = {
   fetchSheetsData,
   extractNewTransactions,
   publish,
+  fetchCategories,
 };

@@ -23,3 +23,5 @@ export const range = (from?: number) => {
 export const fullRange = (from?: number) => {
   return `${range(from)}:F`;
 };
+
+export const categorySheetName = "Category";

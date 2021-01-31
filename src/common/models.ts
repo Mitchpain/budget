@@ -1,4 +1,4 @@
-enum Classes {
+export enum Classes {
   "Investissement",
   "Paye",
   "Boni",
@@ -53,4 +53,14 @@ export interface CustomDate {
   Month: string;
   Day: string;
   Year: string;
+}
+
+export interface CategoryCounter {
+  Name: string;
+  Count: number;
+}
+
+export interface TransactionCategories {
+  Nom: string;
+  Categories: [CategoryCounter];
 }

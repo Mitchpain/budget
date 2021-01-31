@@ -1,9 +1,13 @@
 import { parseCSV, readCSV, readJsonFile } from "./reader";
 import { logger } from "./logger";
 import { BankType, Root } from "./models";
-import { TransactionInfo } from "./common/models";
+import { Classes, TransactionInfo } from "./common/models";
 import { sheetService } from "./sheets";
-import { filterWantedTransactions, promptRatio } from "./prompt";
+import {
+  filterAndCategorizeWantedTransactions,
+  promptCategory,
+  promptRatio,
+} from "./prompt";
 
 const readRoot = async () => {
   try {
@@ -47,6 +51,8 @@ export const execute = async (bankType: BankType) => {
   const sheets = sheetService.classifyTransactionsByDate(allTransactionInfos);
   await sheetService.init(root.sheetId);
 
+  const categories = await sheetService.fetchCategories();
+
   for (const sheetName in sheets) {
     const sheetOnlineDatas = await sheetService.fetchSheetsData(sheetName);
     const bankTransactions = sheets[sheetName] as TransactionInfo[];
@@ -55,9 +61,14 @@ export const execute = async (bankType: BankType) => {
       sheetOnlineDatas,
       ratio
     );
-    const filteredTransactions = await filterWantedTransactions(newTrasactions);
-    //extract wanted / unwanted
-    //set category
+
+    const filteredTransactions = await filterAndCategorizeWantedTransactions(
+      newTrasactions,
+      categories
+    );
+
+    //save les category
+
     await sheetService.publish(
       filteredTransactions,
       sheetOnlineDatas.length,
