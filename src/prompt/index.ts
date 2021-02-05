@@ -4,6 +4,7 @@ import {
   Classes,
   TransactionCategories,
 } from "../common/models";
+import { SheetsInformation } from "../sheets/models";
 
 export const promptRatio = async (defaultMig: string, defaultLau: string) => {
   const response = await prompts([
@@ -25,17 +26,6 @@ export const promptRatio = async (defaultMig: string, defaultLau: string) => {
   const lau = response.lau;
   const ratio = mig / (mig + lau);
   return ratio;
-};
-
-const constructSchema = (transaction: SheetsInformation) => {
-  return {
-    properties: {
-      wanted: {
-        default: "t",
-        message: `Nom: ${transaction.Nom} \n Montant: ${transaction.Montant} \n Data: ${transaction.Date}`,
-      },
-    },
-  };
 };
 
 const getMaxCategory = (categories: CategoryCounter[]): string => {
@@ -81,7 +71,7 @@ export const filterAndCategorizeWantedTransactions = async (
       {
         type: "text",
         name: "wanted",
-        message: `Nom: ${transaction.Nom} \n Montant: ${transaction.Montant} \n Data: ${transaction.Date}`,
+        message: `Nom: ${transaction.Nom} \n Montant: ${transaction.Montant} \n Date: ${transaction.Date}`,
         initial: "t",
       },
     ]);

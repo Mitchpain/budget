@@ -62,5 +62,5 @@ export interface CategoryCounter {
 
 export interface TransactionCategories {
   Nom: string;
-  Categories: [CategoryCounter];
+  Categories: CategoryCounter[];
 }
