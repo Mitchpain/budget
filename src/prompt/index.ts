@@ -4,7 +4,7 @@ import {
   Classes,
   TransactionCategories,
 } from "../common/models";
-import { SheetsInformation } from "../sheets/models";
+import { BudgetItem } from "../sheets/models";
 
 export const promptRatio = async (defaultMig: string, defaultLau: string) => {
   const response = await prompts([
@@ -53,19 +53,19 @@ const getDefaultCategory = (
 };
 
 const categorize = async (
-  transaction: SheetsInformation,
+  transaction: BudgetItem,
   categories: TransactionCategories[]
-): Promise<SheetsInformation> => {
+): Promise<BudgetItem> => {
   const defaultCategory = getDefaultCategory(transaction.Nom, categories);
   const selectedCat = await promptCategory(defaultCategory);
   return { ...transaction, Categorie: selectedCat };
 };
 
 export const filterAndCategorizeWantedTransactions = async (
-  transactions: SheetsInformation[],
+  transactions: BudgetItem[],
   categories: TransactionCategories[]
-): Promise<SheetsInformation[]> => {
-  const wanted: SheetsInformation[] = [];
+): Promise<BudgetItem[]> => {
+  const wanted: BudgetItem[] = [];
   for (const transaction of transactions) {
     const response = await prompts([
       {

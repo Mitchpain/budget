@@ -4,7 +4,7 @@ import { BankType, Root } from "./models";
 import { TransactionCategories, TransactionInfo } from "./common/models";
 import { sheetService } from "./sheets";
 import { filterAndCategorizeWantedTransactions, promptRatio } from "./prompt";
-import { SheetsInformation } from "./sheets/models";
+import { BudgetItem } from "./sheets/models";
 
 const readRoot = async () => {
   try {
@@ -52,7 +52,7 @@ export const execute = async (bankType: BankType) => {
   for (const sheetName in sheets) {
     const sheetOnlineDatas = (await sheetService.fetchSheetsData(
       sheetName
-    )) as SheetsInformation[];
+    )) as BudgetItem[];
     const bankTransactions = sheets[sheetName] as TransactionInfo[];
     const newTrasactions = sheetService.extractNewTransactions(
       bankTransactions,

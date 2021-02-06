@@ -3,7 +3,7 @@ export interface SheetService {
   auth: any;
 }
 
-export interface SheetsInformation {
+export interface BudgetItem {
   Hash: string;
   Nom: string;
   Montant: number;

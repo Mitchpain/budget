@@ -9,7 +9,7 @@ import { logger } from "../logger";
 import authenticate from "./auth";
 import { categorySheetName, fullRange, month, range } from "./constants";
 import * as hash from "object-hash";
-import { RequestType, SheetService, SheetsInformation } from "./models";
+import { RequestType, SheetService, BudgetItem } from "./models";
 
 let service: SheetService = { sheetId: undefined, auth: undefined };
 
@@ -91,7 +91,7 @@ const formatDate = (date: CustomDate) => {
 const transactionToSheet = (
   transaction: TransactionInfo,
   ratio?: number
-): SheetsInformation => {
+): BudgetItem => {
   const formattedDate = formatDate(transaction.Date);
   const montant = transaction.Montant * (ratio ?? 1);
   const hashed = hash([transaction.Nom, transaction.Date, transaction.Montant]);
@@ -110,7 +110,7 @@ const extractCategory = (row): TransactionCategories => {
   };
 };
 
-const extractSheetInformation = (row): SheetsInformation => {
+const extractSheetInformation = (row): BudgetItem => {
   return {
     Hash: row[0],
     Nom: row[1],
@@ -124,7 +124,7 @@ const extractSheetInformation = (row): SheetsInformation => {
 const extractData = (
   results,
   requestType: RequestType
-): TransactionCategories[] | SheetsInformation[] => {
+): TransactionCategories[] | BudgetItem[] => {
   const data = [];
   const rows = results.data.values;
   if (rows) {
@@ -180,10 +180,10 @@ const fetchCategories = async () => {
 
 const extractNewTransactions = (
   bankTransactions: TransactionInfo[],
-  sheetOnlineDatas: SheetsInformation[],
+  sheetOnlineDatas: BudgetItem[],
   ratio?: number
 ) => {
-  const newTransactions: SheetsInformation[] = [];
+  const newTransactions: BudgetItem[] = [];
   for (const bankTransaction of bankTransactions) {
     const transactionAsSheet = transactionToSheet(bankTransaction, ratio);
     const found = sheetOnlineDatas.filter((value, index, array) => {
@@ -198,7 +198,7 @@ const convertMontant = (montant: number) => {
   return montant.toString().replace(".", ",");
 };
 
-const formatSheetsInformation = (datas: SheetsInformation[]) => {
+const formatSheetsInformation = (datas: BudgetItem[]) => {
   let values = [];
   for (const data of datas) {
     values.push([
@@ -226,7 +226,7 @@ const updateCategory = (catName: string, catCounters: CategoryCounter[]) => {
 };
 
 const computeNewTransactionCategories = (
-  datas: SheetsInformation[],
+  datas: BudgetItem[],
   transactionCategories: TransactionCategories[]
 ) => {
   const newTransactionCategories: TransactionCategories[] = [];
@@ -268,7 +268,7 @@ const formatTransactionCategories = (
 };
 
 const updateDefaultCategories = async (
-  datas: SheetsInformation[],
+  datas: BudgetItem[],
   transactionCategories: TransactionCategories[]
 ) => {
   const newTransactionCategories = computeNewTransactionCategories(
@@ -294,7 +294,7 @@ const writeSheet = async (values: any, range: string) => {
 };
 
 const publish = async (
-  datas: SheetsInformation[],
+  datas: BudgetItem[],
   previousSize: number,
   sheetName: string
 ) => {
