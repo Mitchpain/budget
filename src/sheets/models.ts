@@ -14,5 +14,5 @@ export interface BudgetItem {
 
 export enum RequestType {
   Category,
-  Data,
+  BudgetItems,
 }

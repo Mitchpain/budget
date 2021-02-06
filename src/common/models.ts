@@ -42,7 +42,7 @@ export interface TangerineInformation {
   Montant: string;
 }
 
-export interface TransactionInfo {
+export interface TransactionItem {
   Date: CustomDate;
   Montant: number;
   Nom: string;

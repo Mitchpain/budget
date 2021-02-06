@@ -1,6 +1,6 @@
 import { BankType } from "../models";
 import {
-  TransactionInfo,
+  TransactionItem,
   BncInformation,
   CustomDate,
   TangerineInformation,
@@ -14,7 +14,7 @@ const bncDateToCustomDate = (date: string): CustomDate => {
 };
 
 const bncToGeneralBank = (bncInfos: BncInformation[]) => {
-  const general: TransactionInfo[] = [];
+  const general: TransactionItem[] = [];
   for (const bncInfo of bncInfos) {
     const debit = Number(bncInfo.Debit);
     const credit = Number(bncInfo.Credit);
@@ -56,7 +56,7 @@ const convertTangerineDate = (date: string): CustomDate => {
 };
 
 const tangerineToGeneralBank = (tangerineInfos: TangerineInformation[]) => {
-  const general: TransactionInfo[] = [];
+  const general: TransactionItem[] = [];
   for (const tangerineInfo of tangerineInfos) {
     general.push({
       Nom: tangerineInfo.Nom,
@@ -70,7 +70,7 @@ const tangerineToGeneralBank = (tangerineInfos: TangerineInformation[]) => {
 export const parseCSV = (
   csvStringInfo: string[][],
   bankType: BankType
-): TransactionInfo[] => {
+): TransactionItem[] => {
   switch (bankType) {
     case BankType.BNC:
       return bncToGeneralBank(parseBncCSV(csvStringInfo));

@@ -1,7 +1,7 @@
 import { parseCSV, readCSV, readJsonFile } from "./reader";
 import { logger } from "./logger";
 import { BankType, Root } from "./models";
-import { TransactionCategories, TransactionInfo } from "./common/models";
+import { TransactionCategories, TransactionItem } from "./common/models";
 import { sheetService } from "./sheets";
 import { filterAndCategorizeWantedTransactions, promptRatio } from "./prompt";
 import { BudgetItem } from "./sheets/models";
@@ -22,7 +22,7 @@ const initiallizeLogger = async (root: Root, bankType: BankType) => {
   }
 };
 
-const processCSV = async (bankType: BankType): Promise<TransactionInfo[]> => {
+const processCSV = async (bankType: BankType): Promise<TransactionItem[]> => {
   if (process.argv[2] === undefined) logger.error("CSV path is undefined");
   const pathToCSV = process.argv[2];
   const csvString = await readCSV(pathToCSV, bankType);
@@ -53,7 +53,7 @@ export const execute = async (bankType: BankType) => {
     const sheetOnlineDatas = (await sheetService.fetchSheetsData(
       sheetName
     )) as BudgetItem[];
-    const bankTransactions = sheets[sheetName] as TransactionInfo[];
+    const bankTransactions = sheets[sheetName] as TransactionItem[];
     const newTrasactions = sheetService.extractNewTransactions(
       bankTransactions,
       sheetOnlineDatas,
