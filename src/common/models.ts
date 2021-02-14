@@ -25,24 +25,7 @@ export enum Classes {
   "Santé",
 }
 
-export interface BncInformation {
-  Date: string;
-  Description: string;
-  Categorie: string;
-  Debit: string;
-  Credit: string;
-  Solde: string;
-}
-
-export interface TangerineInformation {
-  Date: string;
-  Transaction: string;
-  Nom: string;
-  Description: string;
-  Montant: string;
-}
-
-export interface TransactionItem {
+export interface Transaction {
   Date: CustomDate;
   Montant: number;
   Nom: string;

@@ -1,4 +1,4 @@
-import { CustomDate, TransactionItem } from "../common/models";
+import { CustomDate, Transaction } from "../common/models";
 import * as hash from "object-hash";
 import { BudgetItem } from "../sheets/models";
 
@@ -12,7 +12,7 @@ const formatDate = (date: CustomDate) => {
   return `${day}/${month}/${date.Year}`;
 };
 
-const fromTransaction = (transaction: TransactionItem, ratio?: number) => {
+const fromTransaction = (transaction: Transaction, ratio?: number) => {
   const formattedDate = formatDate(transaction.Date);
   const montant = transaction.Montant * (ratio ?? 1);
   const hashed = hash([transaction.Nom, transaction.Date, transaction.Montant]);

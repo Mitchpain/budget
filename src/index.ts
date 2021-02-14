@@ -1,10 +1,12 @@
-import { parseCSV, readCSV, readJsonFile } from "./reader";
+import { readJsonFile } from "./reader";
 import { logger } from "./logger";
-import { BankType, Root } from "./models";
-import { TransactionCategories, TransactionItem } from "./common/models";
+import { Root } from "./models";
+import { TransactionCategories, Transaction } from "./common/models";
 import { sheetService } from "./sheets";
 import { filterAndCategorizeWantedTransactions, promptRatio } from "./prompt";
 import { BudgetItem } from "./sheets/models";
+import { BankFactory } from "./bank";
+import { Tangerine } from "./tangerine/tangerine";
 
 const readRoot = async () => {
   try {
@@ -14,19 +16,17 @@ const readRoot = async () => {
   }
 };
 
-const initiallizeLogger = async (root: Root, bankType: BankType) => {
+const initiallizeLogger = async (root: Root) => {
   try {
-    await logger.init(bankType, root.logFolder);
+    await logger.init("Budget", root.logFolder);
   } catch (err) {
     console.error("Error while initializing the logger", err);
   }
 };
 
-const processCSV = async (bankType: BankType): Promise<TransactionItem[]> => {
+const getCSVPath = () => {
   if (process.argv[2] === undefined) logger.error("CSV path is undefined");
-  const pathToCSV = process.argv[2];
-  const csvString = await readCSV(pathToCSV, bankType);
-  return parseCSV(csvString, bankType);
+  return process.argv[2];
 };
 
 const getDefaultLau = () => {
@@ -37,14 +37,16 @@ const getDefaultMig = () => {
   return process.argv[3] ?? "1";
 };
 
-export const execute = async (bankType: BankType) => {
+export const execute = async () => {
   const root = (await readRoot()) as Root;
-  await initiallizeLogger(root, bankType);
+  await initiallizeLogger(root);
+  const csvPath = getCSVPath();
+  const bank = await BankFactory.createBank(csvPath);
   const ratio =
-    bankType === BankType.TANGERINE
+    bank instanceof Tangerine
       ? await promptRatio(getDefaultMig(), getDefaultLau())
       : undefined;
-  const allTransactionInfos = await processCSV(bankType);
+  const allTransactionInfos = bank.getTransactions();
   const sheets = sheetService.classifyTransactionsByDate(allTransactionInfos);
   await sheetService.init(root.sheetId);
 
@@ -53,7 +55,7 @@ export const execute = async (bankType: BankType) => {
     const sheetOnlineDatas = (await sheetService.fetchSheetsData(
       sheetName
     )) as BudgetItem[];
-    const bankTransactions = sheets[sheetName] as TransactionItem[];
+    const bankTransactions = sheets[sheetName] as Transaction[];
     const newTrasactions = sheetService.extractNewTransactions(
       bankTransactions,
       sheetOnlineDatas,

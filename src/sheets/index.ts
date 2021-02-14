@@ -3,7 +3,7 @@ import { BudgetItemService } from "../budgetItem";
 import {
   CategoryCounter,
   TransactionCategories,
-  TransactionItem,
+  Transaction,
 } from "../common/models";
 import { logger } from "../logger";
 import authenticate from "./auth";
@@ -12,11 +12,11 @@ import { RequestType, SheetService, BudgetItem } from "./models";
 
 let service: SheetService = { sheetId: undefined, auth: undefined };
 
-const computeSheetName = (transaction: TransactionItem) => {
+const computeSheetName = (transaction: Transaction) => {
   return `${month[Number(transaction.Date.Month) - 1]}${transaction.Date.Year}`;
 };
 
-const classifyTransactionsByDate = (transactions: TransactionItem[]) => {
+const classifyTransactionsByDate = (transactions: Transaction[]) => {
   const sheets = [];
   for (const transactionInfo of transactions) {
     const name = computeSheetName(transactionInfo);
@@ -106,7 +106,7 @@ const fetchCategories = async () => {
 };
 
 const extractNewTransactions = (
-  bankTransactions: TransactionItem[],
+  bankTransactions: Transaction[],
   sheetOnlineDatas: BudgetItem[],
   ratio?: number
 ) => {
@@ -206,52 +206,7 @@ const computeNewTransactionCategories = (
       bugetItem
     );
   }
-  return updatedTransactionCategories; /*
-
-  const newTransactionCategories: TransactionCategories[] = [];
-  for (const budgetItem of budgetItems) {
-    let alreadyInNew = false;
-    newTransactionCategories.forEach((newTransactionCategory) => {
-      if (newTransactionCategory.Nom === budgetItem.Nom) {
-        newTransactionCategory = updateTransactionCategory(
-          newTransactionCategory,
-          budgetItem.Categorie
-        );
-        alreadyInNew = true;
-      }
-    });
-    if (alreadyInNew) continue;
-    const filterFromNew = newTransactionCategories.filter((transCat) => {
-      return transCat.Nom === budgetItem.Nom;
-    });
-    if (filterFromNew.length > 0) {
-    }
-    const filteredTransactionCategory = previousTransactionCategories.filter(
-      (value) => {
-        return value.Nom === budgetItem.Nom;
-      }
-    );
-    if (filteredTransactionCategory.length > 0) {
-      newTransactionCategories.push(
-        updateTransactionCategory(
-          filteredTransactionCategory[0],
-          budgetItem.Categorie
-        )
-      );
-    } else {
-      newTransactionCategories.push({
-        Nom: budgetItem.Nom,
-        Categories: [{ Name: budgetItem.Categorie, Count: 1 }],
-      });
-    }
-  }
-  for (const previousTransactionCategory of previousTransactionCategories) {
-    const isMissing = !newTransactionCategories.some((cat) => {
-      return cat.Nom === previousTransactionCategory.Nom;
-    });
-    if (isMissing) newTransactionCategories.push(previousTransactionCategory);
-  }
-  return newTransactionCategories;*/
+  return updatedTransactionCategories;
 };
 
 const formatTransactionCategories = (

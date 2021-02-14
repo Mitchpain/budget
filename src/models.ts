@@ -6,4 +6,5 @@ export interface Root {
 export enum BankType {
   BNC = "bnc",
   TANGERINE = "tangerine",
+  BNC_MASTERCARD = "bnc mastercard",
 }
