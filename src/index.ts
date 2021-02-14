@@ -1,10 +1,9 @@
 import { readJsonFile } from "./reader";
 import { logger } from "./logger";
 import { Root } from "./models";
-import { TransactionCategories, Transaction } from "./common/models";
+import { Transaction } from "./common/models";
 import { sheetService } from "./sheets";
 import { filterAndCategorizeWantedTransactions, promptRatio } from "./prompt";
-import { BudgetItem } from "./sheets/models";
 import { BankFactory } from "./bank";
 import { Tangerine } from "./tangerine/tangerine";
 
@@ -50,15 +49,13 @@ export const execute = async () => {
   const sheets = sheetService.classifyTransactionsByDate(allTransactionInfos);
   await sheetService.init(root.sheetId);
 
-  const categories = (await sheetService.fetchCategories()) as TransactionCategories[];
+  const categories = await sheetService.fetchCategories();
   for (const sheetName in sheets) {
-    const sheetOnlineDatas = (await sheetService.fetchSheetsData(
-      sheetName
-    )) as BudgetItem[];
+    const budgetItems = await sheetService.fetchBudgetItems(sheetName);
     const bankTransactions = sheets[sheetName] as Transaction[];
     const newTrasactions = sheetService.extractNewTransactions(
       bankTransactions,
-      sheetOnlineDatas,
+      budgetItems,
       ratio
     );
     const filteredTransactions = await filterAndCategorizeWantedTransactions(
@@ -71,7 +68,7 @@ export const execute = async () => {
     );
     await sheetService.publish(
       filteredTransactions,
-      sheetOnlineDatas.length,
+      budgetItems.length,
       sheetName
     );
   }

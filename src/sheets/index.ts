@@ -18,10 +18,10 @@ const computeSheetName = (transaction: Transaction) => {
 
 const classifyTransactionsByDate = (transactions: Transaction[]) => {
   const sheets = [];
-  for (const transactionInfo of transactions) {
-    const name = computeSheetName(transactionInfo);
+  for (const transaction of transactions) {
+    const name = computeSheetName(transaction);
     if (sheets[name] === undefined) sheets[name] = [];
-    sheets[name] = [...sheets[name], transactionInfo];
+    sheets[name] = [...sheets[name], transaction];
   }
   return sheets;
 };
@@ -51,9 +51,9 @@ const extractBudgetItems = (results) => {
   return extractData(results, RequestType.BudgetItems);
 };
 
-const fetchBudgetItems = async (sheetName: string) => {
+const fetchBudgetItems = async (sheetName: string): Promise<BudgetItem[]> => {
   const results = await fetchData(sheetName, fullRange());
-  if (!!results) return extractBudgetItems(results);
+  if (!!results) return extractBudgetItems(results) as BudgetItem[];
   return [];
 };
 
@@ -95,10 +95,10 @@ const extractCategories = (results) => {
   return extractData(results, RequestType.Category);
 };
 
-const fetchCategories = async () => {
+const fetchCategories = async (): Promise<TransactionCategories[]> => {
   try {
     const results = await fetchData(categorySheetName, "A1:B");
-    if (!!results) return extractCategories(results);
+    if (!!results) return extractCategories(results) as TransactionCategories[];
   } catch (err) {
     logger.error(err);
   }
@@ -262,7 +262,7 @@ export const sheetService = {
   init,
   computeSheetName,
   classifyTransactionsByDate,
-  fetchSheetsData: fetchBudgetItems,
+  fetchBudgetItems,
   extractNewTransactions,
   publish,
   fetchCategories,
